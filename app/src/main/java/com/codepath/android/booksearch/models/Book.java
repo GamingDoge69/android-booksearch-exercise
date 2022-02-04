@@ -1,17 +1,23 @@
 package com.codepath.android.booksearch.models;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcel;
 
 import java.util.ArrayList;
 
+@Parcel
 public class Book {
     private String openLibraryId;
     private String author;
     private String title;
+
+    private String publisher;
+    private String publish_year;
 
     public String getOpenLibraryId() {
         return openLibraryId;
@@ -25,10 +31,20 @@ public class Book {
         return author;
     }
 
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public String getPublishYear() {
+        return publish_year;
+    }
+
     // Get book cover from covers API
     public String getCoverUrl() {
         return "https://covers.openlibrary.org/b/olid/" + openLibraryId + "-L.jpg?default=false";
     }
+
+    public Book() { /* Parcelable Constructor */}
 
     // Returns a Book given the expected JSON
     public static Book fromJson(JSONObject jsonObject) {
@@ -44,6 +60,8 @@ public class Book {
             }
             book.title = jsonObject.has("title_suggest") ? jsonObject.getString("title_suggest") : "";
             book.author = getAuthor(jsonObject);
+            book.publisher = getPublisher(jsonObject);
+            book.publish_year = jsonObject.has("first_publish_year") ? jsonObject.getString("first_publish_year") : "";
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -60,6 +78,21 @@ public class Book {
             final String[] authorStrings = new String[numAuthors];
             for (int i = 0; i < numAuthors; ++i) {
                 authorStrings[i] = authors.getString(i);
+            }
+            return TextUtils.join(", ", authorStrings);
+        } catch (JSONException e) {
+            return "";
+        }
+    }
+
+    // Return comma separated publisher list when there is more than one author
+    private static String getPublisher(final JSONObject jsonObject) {
+        try {
+            final JSONArray publishers = jsonObject.getJSONArray("publisher");
+            int numPublishers = publishers.length();
+            final String[] authorStrings = new String[numPublishers];
+            for (int i = 0; i < numPublishers; ++i) {
+                authorStrings[i] = publishers.getString(i);
             }
             return TextUtils.join(", ", authorStrings);
         } catch (JSONException e) {
