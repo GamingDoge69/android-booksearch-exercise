@@ -99,7 +99,9 @@ public class BookListActivity extends AppCompatActivity {
                             abooks.add(book); // add book through the adapter
                         }
                         bookAdapter.notifyDataSetChanged();
-                        miActionProgressItem.setVisible(false);
+                        if (miActionProgressItem != null) {
+                            miActionProgressItem.setVisible(false);
+                        }
                     }
                 } catch (JSONException e) {
                     // Invalid JSON format, show appropriate error.
